@@ -1,6 +1,6 @@
-FROM nginx:1.9-alpine
+FROM nginx:1.10-alpine
 
-ENV SWAGGER_UI_VERSION "2.1.4"
+ENV SWAGGER_UI_VERSION "2.2.3"
 
 WORKDIR /etc/nginx
 
@@ -17,7 +17,10 @@ RUN apk add --no-cache --virtual .build-deps \
     && rm -rf /tmp/swagger-ui-$SWAGGER_UI_VERSION \
     && apk del .build-deps
 
+ARG SPEC_PATH
+ENV SPEC_PATH ${SPEC_PATH:-/v1/api-docs}
+
 # replace the default petstore with the APIs exposed via swagger-express of our application
-RUN sed -i "s|http://petstore.swagger.io/v2/swagger.json|/v1/api-docs|g" /usr/share/nginx/html/apis/index.html
+RUN sed -i "s|http://petstore.swagger.io/v2/swagger.json|${SPEC_PATH}|g" /usr/share/nginx/html/apis/index.html
 
 CMD ["nginx"]
